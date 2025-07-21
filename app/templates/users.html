@@ -1,0 +1,63 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto bg-white p-8 rounded-lg shadow-md">
+    <h2 class="text-3xl font-bold mb-8 border-b pb-4 text-gray-800">👨‍💻 Gestión de Usuarios</h2>
+
+    <div class="mb-10 bg-gray-50 p-6 rounded-lg shadow-sm">
+        <h3 class="text-2xl font-semibold mb-5 border-b pb-2 text-gray-700">Añadir Nuevo Usuario</h3>
+        <form action="{{ url_for('main.add_user') }}" method="POST" class="space-y-4">
+            <div>
+                <label for="name" class="block text-sm font-medium text-gray-700">Nombre</label>
+                <input type="text" id="name" name="name" required class="mt-1 block w-full py-2 px-3 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm" placeholder="Nombre completo">
+            </div>
+            <div>
+                <label for="email" class="block text-sm font-medium text-gray-700">Correo Electrónico</label>
+                <input type="email" id="email" name="email" required class="mt-1 block w-full py-2 px-3 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm" placeholder="ejemplo@dominio.com">
+            </div>
+            <button type="submit" class="w-full bg-green-600 text-white py-2 px-4 rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500">
+                Añadir Usuario
+            </button>
+        </form>
+    </div>
+
+    <div class="bg-gray-50 p-6 rounded-lg shadow-sm">
+        <h3 class="text-2xl font-semibold mb-5 border-b pb-2 text-gray-700">Lista de Usuarios</h3>
+        <div class="overflow-x-auto">
+            <table class="min-w-full bg-white border border-gray-200 rounded-lg">
+                <thead class="bg-gray-100">
+                    <tr>
+                        <th class="py-3 px-4 text-left text-gray-700 font-semibold text-sm">ID</th>
+                        <th class="py-3 px-4 text-left text-gray-700 font-semibold text-sm">Nombre</th>
+                        <th class="py-3 px-4 text-left text-gray-700 font-semibold text-sm">Email</th>
+                        <th class="py-3 px-4 text-left text-gray-700 font-semibold text-sm">Acciones</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-200">
+                    {% for user in users %}
+                    <tr>
+                        <td class="py-3 px-4 text-gray-800">{{ user.id }}</td>
+                        <td class="py-3 px-4 text-gray-800">{{ user.name }}</td>
+                        <td class="py-3 px-4 text-gray-800">{{ user.email }}</td>
+                        <td class="py-3 px-4 flex space-x-2">
+                            <a href="{{ url_for('main.edit_user', id=user.id) }}" class="text-blue-600 hover:text-blue-800">
+                                <i class="fas fa-edit"></i>
+                            </a>
+                            <form action="{{ url_for('main.delete_user', id=user.id) }}" method="POST" onsubmit="return confirm('¿Estás seguro de que quieres eliminar este usuario? Las reservas asociadas también se eliminarán.');">
+                                <button type="submit" class="text-gray-500 hover:text-red-700">
+                                    <i class="fas fa-trash-alt"></i>
+                                </button>
+                            </form>
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="4" class="text-center py-4 text-gray-500">No hay usuarios registrados.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

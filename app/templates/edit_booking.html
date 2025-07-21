@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="max-w-md mx-auto bg-white p-8 rounded-lg shadow-md mt-10">
+    <h2 class="text-2xl font-bold mb-6 border-b pb-2 text-gray-800">✏️ Editar Reserva</h2>
+    <form action="{{ url_for('main.edit_booking', id=booking.id) }}" method="POST" class="space-y-4">
+        <div class="mb-4">
+            <label for="user_id" class="block text-sm font-medium text-gray-700">Usuario</label>
+            <select id="user_id" name="user_id" required class="mt-1 block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
+                {% for user in users %}
+                <option value="{{ user.id }}" {% if user.id == booking.user_id %}selected{% endif %}>{{ user.name }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="mb-4">
+            <label for="room_id" class="block text-sm font-medium text-gray-700">Sala</label>
+            <select id="room_id" name="room_id" required class="mt-1 block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
+                {% for room in rooms %}
+                <option value="{{ room.id }}" {% if room.id == booking.room_id %}selected{% endif %}>{{ room.name }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="mb-4">
+            <label for="start_time" class="block text-sm font-medium text-gray-700">Inicio</label>
+            <input type="datetime-local" id="start_time" name="start_time" 
+                   value="{{ booking.start_time.strftime('%Y-%m-%dT%H:%M') }}" required 
+                   class="mt-1 block w-full py-2 px-3 border border-gray-300 rounded-md shadow-sm">
+        </div>
+        <div class="mb-4">
+            <label for="end_time" class="block text-sm font-medium text-gray-700">Fin</label>
+            <input type="datetime-local" id="end_time" name="end_time" 
+                   value="{{ booking.end_time.strftime('%Y-%m-%dT%H:%M') }}" required 
+                   class="mt-1 block w-full py-2 px-3 border border-gray-300 rounded-md shadow-sm">
+        </div>
+        <div class="mb-4">
+            <label for="purpose" class="block text-sm font-medium text-gray-700">Propósito</label>
+            <input type="text" id="purpose" name="purpose" value="{{ booking.purpose }}" required class="mt-1 block w-full py-2 px-3 border border-gray-300 rounded-md shadow-sm" placeholder="Ej: Reunión de equipo">
+        </div>
+        <div class="flex space-x-4">
+            <button type="submit" class="flex-1 bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                Guardar Cambios
+            </button>
+            <a href="{{ url_for('main.index') }}" class="flex-1 text-center bg-gray-300 text-gray-800 py-2 px-4 rounded-md hover:bg-gray-400 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500">
+                Cancelar
+            </a>
+        </div>
+    </form>
+</div>
+{% endblock %}

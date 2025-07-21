@@ -1,0 +1,232 @@
+{# app/templates/index.html #}
+
+{% extends "base.html" %}
+
+{% block content %}
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+    <div class="lg:col-span-1 space-y-8">
+        <div class="bg-white p-6 rounded-lg shadow-md">
+            <h2 class="text-2xl font-bold mb-6 border-b pb-2 text-gray-800">📅 Nueva Reserva</h2>
+            <form action="{{ url_for('main.create_booking') }}" method="POST">
+                <div class="mb-4">
+                    <label for="user_id" class="block text-sm font-medium text-gray-700">Usuario</label>
+                    <select id="user_id" name="user_id" required class="mt-1 block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
+                        {% for user in users %}
+                        <option value="{{ user.id }}">{{ user.name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="mb-4">
+                    <label for="room_id" class="block text-sm font-medium text-gray-700">Sala</label>
+                    <select id="room_id" name="room_id" required class="mt-1 block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
+                        {% for room in rooms %}
+                        <option value="{{ room.id }}">{{ room.name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="mb-4">
+                    <label for="start_time" class="block text-sm font-medium text-gray-700">Inicio</label>
+                    <input type="datetime-local" id="start_time" name="start_time" required class="mt-1 block w-full py-2 px-3 border border-gray-300 rounded-md shadow-sm">
+                </div>
+                <div class="mb-4">
+                    <label for="end_time" class="block text-sm font-medium text-gray-700">Fin</label>
+                    <input type="datetime-local" id="end_time" name="end_time" required class="mt-1 block w-full py-2 px-3 border border-gray-300 rounded-md shadow-sm">
+                </div>
+                <div class="mb-4">
+                    <label for="purpose" class="block text-sm font-medium text-gray-700">Propósito</label>
+                    <input type="text" id="purpose" name="purpose" required class="mt-1 block w-full py-2 px-3 border border-gray-300 rounded-md shadow-sm" placeholder="Ej: Reunión de equipo">
+                </div>
+                <button type="submit" class="w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                    Reservar Sala
+                </button>
+            </form>
+        </div>
+
+        <div class="bg-white p-6 rounded-lg shadow-md">
+            <h2 class="text-2xl font-bold mb-6 border-b pb-2 text-gray-800">🔍 Consultar Reservas</h2>
+            <form id="filter-form" action="{{ url_for('main.index') }}" method="GET"> {# Añadido ID al formulario #}
+                <div class="mb-4">
+                    <label for="user_filter" class="block text-sm font-medium text-gray-700">Filtrar por Usuario</label>
+                    <select id="user_filter" name="user_id" class="mt-1 block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm">
+                        <option value="">Todos los usuarios</option>
+                        {% for user in users %}
+                        <option value="{{ user.id }}" {% if user.id == user_id_filter %}selected{% endif %}>{{ user.name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="mb-4">
+                    <label for="room_filter" class="block text-sm font-medium text-gray-700">Filtrar por Sala</label>
+                    <select id="room_filter" name="room_id" class="mt-1 block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm">
+                        <option value="">Todas las salas</option>
+                        {% for room in rooms %}
+                        <option value="{{ room.id }}" {% if room.id == room_id_filter %}selected{% endif %}>{{ room.name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="flex space-x-2">
+                    <button type="submit" class="flex-1 bg-gray-600 text-white py-2 px-4 rounded-md hover:bg-gray-700">
+                        Filtrar
+                    </button>
+                    <a href="{{ url_for('main.index') }}" class="flex-1 text-center bg-gray-300 text-gray-800 py-2 px-4 rounded-md hover:bg-gray-400">
+                        Limpiar
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div class="lg:col-span-2 bg-white p-6 rounded-lg shadow-md">
+        <h2 class="text-2xl font-bold mb-6 text-gray-800">📋 Lista de Reservas</h2>
+        <div class="overflow-x-auto">
+            <table class="min-w-full bg-white">
+                <thead class="bg-gray-200">
+                    <tr>
+                        <th class="py-3 px-4 text-left text-gray-700">Estado</th>
+                        <th class="py-3 px-4 text-left text-gray-700">Usuario</th>
+                        <th class="py-3 px-4 text-left text-gray-700">Sala</th>
+                        <th class="py-3 px-4 text-left text-gray-700">Inicio</th>
+                        <th class="py-3 px-4 text-left text-gray-700">Fin</th>
+                        <th class="py-3 px-4 text-left text-gray-700">Propósito</th>
+                        <th class="py-3 px-4 text-left text-gray-700">Acciones</th>
+                    </tr>
+                </thead>
+                <tbody id="bookings-table-body" class="divide-y divide-gray-200"> {# Añadido ID al tbody #}
+                    {% for booking in bookings %}
+                    <tr>
+                        <td class="py-3 px-4 booking-status" data-booking-id="{{ booking.id }}"> {# Añadido clase y data-attribute #}
+                            {% if current_time > booking.end_time %}
+                                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-gray-100 text-gray-800">Finalizada</span>
+                            {% elif current_time >= booking.start_time and current_time <= booking.end_time %}
+                                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-800">Ocupada</span>
+                            {% else %}
+                                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">Próxima</span>
+                            {% endif %}
+                        </td>
+                        <td class="py-3 px-4">{{ booking.user.name }}</td>
+                        <td class="py-3 px-4">{{ booking.room.name }}</td>
+                        <td class="py-3 px-4">{{ booking.start_time.strftime('%d-%m-%y %H:%M') }}</td>
+                        <td class="py-3 px-4">{{ booking.end_time.strftime('%d-%m-%y %H:%M') }}</td>
+                        <td class="py-3 px-4">{{ booking.purpose }}</td>
+                        <td class="py-3 px-4 flex space-x-2">
+                            <a href="{{ url_for('main.edit_booking', id=booking.id) }}" class="text-blue-600 hover:text-blue-800">
+                                <i class="fas fa-edit"></i>
+                            </a>
+                            <form action="{{ url_for('main.delete_booking', id=booking.id) }}" method="POST" onsubmit="return confirm('¿Estás seguro de que quieres eliminar esta reserva?');">
+                                <button type="submit" class="text-gray-500 hover:text-red-700">
+                                    <i class="fas fa-trash-alt"></i>
+                                </button>
+                            </form>
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr id="no-bookings-row"> {# Añadido ID para ocultar/mostrar con JS #}
+                        <td colspan="7" class="text-center py-4 text-gray-500">No hay reservas que coincidan con los filtros.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Función para obtener los filtros actuales del formulario
+    function getCurrentFilters() {
+        const userId = document.getElementById('user_filter').value;
+        const roomId = document.getElementById('room_filter').value;
+        let params = new URLSearchParams();
+        if (userId) {
+            params.append('user_id', userId);
+        }
+        if (roomId) {
+            params.append('room_id', roomId);
+        }
+        return params.toString();
+    }
+
+    // Función para actualizar los estados de las reservas
+    async function updateBookingStatuses() {
+        const tableBody = document.getElementById('bookings-table-body');
+        const noBookingsRow = document.getElementById('no-bookings-row');
+        const currentParams = getCurrentFilters();
+        
+        try {
+            const response = await fetch(`/api/bookings_status?${currentParams}`);
+            const bookings = await response.json();
+
+            // Limpiar la tabla antes de rellenar
+            tableBody.innerHTML = ''; 
+
+            if (bookings.length === 0) {
+                // Mostrar "No hay reservas" si no hay datos
+                const tr = document.createElement('tr');
+                tr.id = 'no-bookings-row'; // Asignar el ID para que funcione si se filtra a 0 reservas
+                tr.innerHTML = '<td colspan="7" class="text-center py-4 text-gray-500">No hay reservas que coincidan con los filtros.</td>';
+                tableBody.appendChild(tr);
+            } else {
+                // Rellenar la tabla con los nuevos datos
+                bookings.forEach(booking => {
+                    const row = document.createElement('tr');
+                    
+                    let statusHtml = '';
+                    let statusClass = '';
+                    let statusText = '';
+
+                    if (booking.status === 'Finalizada') {
+                        statusClass = 'bg-gray-100 text-gray-800';
+                        statusText = 'Finalizada';
+                    } else if (booking.status === 'Ocupada') {
+                        statusClass = 'bg-red-100 text-red-800';
+                        statusText = 'Ocupada';
+                    } else { // Próxima
+                        statusClass = 'bg-green-100 text-green-800';
+                        statusText = 'Próxima';
+                    }
+
+                    statusHtml = `<span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${statusClass}">${statusText}</span>`;
+
+                    row.innerHTML = `
+                        <td class="py-3 px-4 booking-status" data-booking-id="${booking.id}">${statusHtml}</td>
+                        <td class="py-3 px-4">${booking.user_name}</td>
+                        <td class="py-3 px-4">${booking.room_name}</td>
+                        <td class="py-3 px-4">${booking.start_time}</td>
+                        <td class="py-3 px-4">${booking.end_time}</td>
+                        <td class="py-3 px-4">${booking.purpose}</td>
+                        <td class="py-3 px-4 flex space-x-2">
+                            <a href="/bookings/edit/${booking.id}" class="text-blue-600 hover:text-blue-800">
+                                <i class="fas fa-edit"></i>
+                            </a>
+                            <form action="/bookings/delete/${booking.id}" method="POST" onsubmit="return confirm('¿Estás seguro de que quieres eliminar esta reserva?');">
+                                <button type="submit" class="text-gray-500 hover:text-red-700">
+                                    <i class="fas fa-trash-alt"></i>
+                                </button>
+                            </form>
+                        </td>
+                    `;
+                    tableBody.appendChild(row);
+                });
+            }
+
+        } catch (error) {
+            console.error('Error al actualizar el estado de las reservas:', error);
+        }
+    }
+
+    // Actualiza los estados cada 10 segundos
+    setInterval(updateBookingStatuses, 10000); // 10000 ms = 10 segundos
+
+    // Opcional: Ejecutar la actualización inmediatamente al cargar la página
+    document.addEventListener('DOMContentLoaded', updateBookingStatuses);
+
+    // Si los filtros cambian, volvemos a cargar las reservas
+    document.getElementById('filter-form').addEventListener('submit', function(event) {
+        event.preventDefault(); // Evita el envío tradicional del formulario
+        updateBookingStatuses(); // Llama a la función de actualización con los nuevos filtros
+        
+        // Opcional: Actualizar la URL del navegador sin recargar la página
+        const newUrl = `${window.location.pathname}?${getCurrentFilters()}`;
+        history.pushState(null, '', newUrl);
+    });
+
+</script>
+{% endblock %}
