@@ -53,35 +53,38 @@ Este proyecto es una aplicación web sencilla para gestionar reservas de salas d
 - Font Awesome
 
 ---
-
 ⚙️ Instalación y Ejecución
-Sigue estos pasos para poner en marcha el proyecto en tu máquina local.
 
 Prerrequisitos
-Python 3.12 o superior instalado.
 
-1. Clona el Repositorio
+Python 3.12 o superior
+
+### 1. Clona el Repositorio
+
 git clone <url_del_repositorio>
 cd Gestion_Reservas
 
-2. Crea y Activa un Entorno Virtual
-Es una buena práctica para gestionar las dependencias del proyecto.
+### 2. Crea y Activa un Entorno Virtual
 
 python3 -m venv venv
 source venv/bin/activate  # En Linux/macOS
-# o en Windows: venv\Scripts\activate
 
-3. Instala las Dependencias
+### 3. Instala las Dependencias
+
 pip install -r requirements.txt
 
-4. Configura la Aplicación
-Asegúrate de que el archivo config.py exista en la raíz de tu proyecto (al mismo nivel que run.py) 
+### 5. Inicializa la Base de Datos
 
-5. Inicializa la Base de Datos
-La base de datos SQLite (site.db) se creará automáticamente la primera vez que inicies la aplicación en la carpeta instance/.
+La base de datos SQLite (site.db) se creará automáticamente la primera vez que ejecutes la aplicación.
 
-6. Ejecuta la Aplicación
+### 6. Ejecuta la Aplicación
+
 python3 run.py
 
-La aplicación se ejecutará en http://127.0.0.1:5000/. Abre esta URL en tu navegador web.
+### Luego abrí tu navegador en: http://127.0.0.1:5000
+
+
+ 
+
+
 
