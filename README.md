@@ -53,7 +53,7 @@ Este proyecto es una aplicación web sencilla para gestionar reservas de salas d
 - Font Awesome
 
 ---
-⚙️ Instalación y Ejecución
+### ⚙️ Instalación y Ejecución
 
 Prerrequisitos
 
